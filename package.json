@@ -2,9 +2,13 @@
   "name": "csgo-demo-info",
   "version": "0.0.1",
   "description": "Parses information from CS:GO demo (replay) files",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "mocha src/index.test.js -w"
+    "prebuild": "rm -rf dist && mkdir dist",
+    "build": "babel src -d dist",
+    "postbuild": "cp src/*.proto dist/",
+    "pretest": "standard",
+    "test": "mocha src/index.test.js -w --compilers js:babel-register"
   },
   "repository": {
     "type": "git",
@@ -24,10 +28,21 @@
   },
   "homepage": "https://github.com/mathphreak/csgo-demo-info#readme",
   "dependencies": {
-    "lodash": "3.10.1"
+    "bluebird": "3.0.6",
+    "lodash": "3.10.1",
+    "protocol-buffers": "3.1.4"
   },
   "devDependencies": {
+    "babel-cli": "6.3.17",
+    "babel-preset-es2015": "6.3.13",
+    "babel-register": "6.3.13",
     "chai": "3.4.1",
-    "mocha": "2.3.4"
+    "mocha": "2.3.4",
+    "standard": "5.4.1"
+  },
+  "standard": {
+    "ignore": [
+      "/dist/"
+    ]
   }
 }

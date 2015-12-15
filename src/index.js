@@ -1,7 +1,12 @@
 // var lodash = require('lodash')
-var package_info = require('../package.json')
+import package_info from '../package.json'
+import DemoFileDump from './dump'
 
 module.exports = {
+  dump () {
+    // TODO do the thing
+    return DemoFileDump
+  },
   version: package_info.version,
   parse () {
     // TODO literally all the work
