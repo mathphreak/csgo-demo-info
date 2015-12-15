@@ -10,7 +10,8 @@ class DemoFileDump {
   Open (filename) {
     return this.demofile.Open(filename)
       .catch((err) => {
-        console.err('Error opening file', filename, 'due to error', err)
+        console.error('Error opening file', filename, 'due to error', err)
+        throw err
       })
   }
   DoDump (filename) {
