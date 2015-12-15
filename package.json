@@ -7,8 +7,8 @@
     "prebuild": "rm -rf dist && mkdir dist",
     "build": "babel src -d dist",
     "postbuild": "cp src/*.proto dist/",
-    "pretest": "standard",
-    "test": "mocha src/index.test.js -w --compilers js:babel-register"
+    "pretest": "standard && npm run build",
+    "test": "mocha --compilers js:babel-register"
   },
   "repository": {
     "type": "git",
@@ -37,6 +37,7 @@
     "babel-preset-es2015": "6.3.13",
     "babel-register": "6.3.13",
     "chai": "3.4.1",
+    "chai-as-promised": "5.1.0",
     "mocha": "2.3.4",
     "standard": "5.4.1"
   },

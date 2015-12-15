@@ -79,7 +79,6 @@ class DemoFile {
     this.demoHeader.playback_ticks = data.readInt32LE(20 + 4 * MAX_OSPATH)
     this.demoHeader.playback_frames = data.readInt32LE(24 + 4 * MAX_OSPATH)
     this.demoHeader.signonlength = data.readInt32LE(28 + 4 * MAX_OSPATH)
-    console.log(this.demoHeader)
   }
 }
 

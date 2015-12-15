@@ -17,8 +17,9 @@ class DemoFileDump {
   DoDump (filename) {
     let demofinished = false
     while (!demofinished) {
-      var {cmd, tick, playerSlot} = this.demofile.ReadCmdHeader()
-      console.log(cmd, tick, playerSlot)
+      // var {cmd, tick, playerSlot} = this.demofile.ReadCmdHeader()
+      // console.log(cmd, tick, playerSlot)
+      demofinished = true
     }
   }
   HandleDemoPacket () {
