@@ -1,6 +1,6 @@
 {
   "name": "csgo-demo-info",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Parses information from CS:GO demo (replay) files",
   "main": "src/index.js",
   "scripts": {
