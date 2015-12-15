@@ -6,6 +6,101 @@ const DEMO_HEADER_ID = 'HL2DEMO'
 const DEMO_PROTOCOL = 4
 const MAX_OSPATH = 260
 const DEMO_HEADER_SIZE = 32 + 4 * MAX_OSPATH
+const FDEMO = {
+  NORMAL: 0,
+  USE_ORIGIN2: (1 << 0),
+  USE_ANGLES2: (1 << 1),
+  NOINTERP: (1 << 2)
+}
+
+class Vector {
+  constructor () {
+    this.x = this.y = this.z = 0.0
+  }
+  ReadFrom (buf) {
+    var pos = 0
+    this.x = buf.readFloatLE(pos)
+    pos += 4
+    this.y = buf.readFloatLE(pos)
+    pos += 4
+    this.z = buf.readFloatLE(pos)
+    pos += 4
+  }
+}
+
+Vector.size = 3 * 4
+
+class QAngle {
+  constructor () {
+    this.x = this.y = this.z = 0.0
+  }
+  ReadFrom (buf) {
+    var pos = 0
+    this.x = buf.readFloatLE(pos)
+    pos += 4
+    this.y = buf.readFloatLE(pos)
+    pos += 4
+    this.z = buf.readFloatLE(pos)
+    pos += 4
+  }
+}
+
+QAngle.size = 3 * 4
+
+class Split {
+  constructor () {
+    this.flags = FDEMO.NORMAL
+    this.viewOrigin = new Vector()
+    this.viewAngles = new QAngle()
+    this.localViewAngles = new QAngle()
+    this.viewOrigin2 = new Vector()
+    this.viewAngles2 = new QAngle()
+    this.localViewAngles2 = new QAngle()
+  }
+  GetViewOrigin () {
+    if (this.flags & FDEMO.USE_ORIGIN2) {
+      return this.viewOrigin2
+    }
+    return this.viewOrigin
+  }
+  GetViewAngles () {
+    if (this.flags & FDEMO.USE_ANGLES2) {
+      return this.viewAngles2
+    }
+    return this.viewAngles
+  }
+  GetLocalViewAngles () {
+    if (this.flags & FDEMO.USE_ANGLES2) {
+      return this.localViewAngles2
+    }
+    return this.localViewAngles
+  }
+  Reset () {
+    this.flags = 0
+    this.viewOrigin2 = this.viewOrigin
+    this.viewAngles2 = this.viewAngles
+    this.localViewAngles2 = this.localViewAngles
+  }
+  ReadFrom (buf) {
+    var pos = 0
+    this.flags = buf.readInt32LE(pos)
+    pos += 4
+    this.viewOrigin.ReadFrom(buf.slice(pos, pos + Vector.size))
+    pos += Vector.size
+    this.viewAngles.ReadFrom(buf.slice(pos, pos + QAngle.size))
+    pos += QAngle.size
+    this.localViewAngles.ReadFrom(buf.slice(pos, pos + QAngle.size))
+    pos += QAngle.size
+    this.viewOrigin2.ReadFrom(buf.slice(pos, pos + Vector.size))
+    pos += Vector.size
+    this.viewAngles2.ReadFrom(buf.slice(pos, pos + QAngle.size))
+    pos += QAngle.size
+    this.localViewAngles2.ReadFrom(buf.slice(pos, pos + QAngle.size))
+    pos += QAngle.size
+  }
+}
+
+Split.size = 4 + 2 * Vector.size + 4 * QAngle.size
 
 class DemoFile {
   constructor () {
@@ -25,6 +120,21 @@ class DemoFile {
     this.fileName = ''
     this.fileBufferPos = 0
     this.fileBuffer = {}
+  }
+  nextInt32 () {
+    var result = this.fileBuffer.readInt32LE(this.fileBufferPos)
+    this.fileBufferPos += 4
+    return result
+  }
+  nextUChar () {
+    var result = this.fileBuffer.readUInt8(this.fileBufferPos)
+    this.fileBufferPos++
+    return result
+  }
+  nextSlice (len) {
+    var result = this.fileBuffer.slice(this.fileBufferPos, this.fileBufferPos + len)
+    this.fileBufferPos += len
+    return result
   }
   Open (filename) {
     this.Close()
@@ -49,20 +159,33 @@ class DemoFile {
   }
   Close () {
     this.fileName = ''
-    this.fileBufferPos = ''
+    this.fileBufferPos = 0
     this.fileBuffer = {}
   }
   ReadRawData () {
-    throw new Error('NYI')
+    var size = this.nextInt32()
+    var buf = this.nextSlice(size)
+    return buf
   }
   ReadSequenceInfo () {
-    throw new Error('NYI')
+    var seqIn = this.nextInt32()
+    var seqOut = this.nextInt32()
+    return {seqIn, seqOut}
   }
   ReadCmdInfo () {
-    throw new Error('NYI')
+    var data = [new Split(), new Split()]
+    data[0].ReadFrom(this.nextSlice(Split.size))
+    data[1].ReadFrom(this.nextSlice(Split.size))
+    return {u: data}
   }
   ReadCmdHeader () {
-    throw new Error('NYI')
+    var cmd = this.nextUChar()
+    // TODO validate command
+    var tick = this.nextInt32()
+    var playerSlot = this.nextUChar()
+    return {
+      cmd, tick, playerSlot
+    }
   }
   ReadUserCmd () {
     throw new Error('NYI')
@@ -82,4 +205,18 @@ class DemoFile {
   }
 }
 
+var commands = {
+  signon: 1,
+  packet: 2,
+  synctick: 3,
+  consolecmd: 4,
+  usercmd: 5,
+  datatables: 6,
+  stop: 7,
+  customdata: 8,
+  stringtables: 9,
+  lastcmd: 9
+}
+
 module.exports = DemoFile
+module.exports.commands = commands
