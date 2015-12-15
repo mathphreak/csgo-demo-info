@@ -1,0 +1,29 @@
+{
+  "name": "csgo-demo-info",
+  "version": "1.0.0",
+  "description": "Parses information from CS:GO demo (replay) files",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mathphreak/csgo-demo-info.git"
+  },
+  "keywords": [
+    "csgo",
+    "counter-strike",
+    "cs:go",
+    "counter strike",
+    "demo"
+  ],
+  "author": "Matt Horn <mathphreak@gmail.com> (http://mathphreak.me/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mathphreak/csgo-demo-info/issues"
+  },
+  "homepage": "https://github.com/mathphreak/csgo-demo-info#readme",
+  "dependencies": {
+    "lodash": "3.10.1"
+  }
+}
