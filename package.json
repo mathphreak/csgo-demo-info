@@ -42,6 +42,7 @@
     "chai-as-promised": "5.1.0",
     "commitizen": "2.4.6",
     "cz-conventional-changelog": "1.1.5",
+    "ghooks": "1.0.1",
     "mocha": "2.3.4",
     "semantic-release": "^4.3.5",
     "standard": "5.4.1"
@@ -49,6 +50,9 @@
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "pre-commit": "npm run test"
     }
   },
   "standard": {
