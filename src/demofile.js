@@ -10,13 +10,13 @@ const DEMO_HEADER_SIZE = 32 + 4 * MAX_OSPATH
 class DemoFile {
   constructor () {
     this.demoHeader = {
-      demofilestamp: [],
+      demofilestamp: '',
       demoprotocol: 0,
       networkprotocol: 0,
-      servername: [],
-      clientname: [],
-      mapname: [],
-      gamedirectory: [],
+      servername: '',
+      clientname: '',
+      mapname: '',
+      gamedirectory: '',
       playback_time: 0.0,
       playback_ticks: 0,
       playback_frames: 0,
