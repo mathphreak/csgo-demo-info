@@ -1,18 +1,20 @@
 {
   "name": "csgo-demo-info",
-  "version": "0.1.0",
+  "version": "0.0.0-semantically-released",
   "description": "Parses information from CS:GO demo (replay) files",
   "main": "dist/index.js",
   "scripts": {
+    "commit": "git-cz",
     "prebuild": "rm -rf dist && mkdir dist",
     "build": "babel src -d dist",
     "postbuild": "cp src/*.proto dist/",
     "pretest": "standard && npm run build",
-    "test": "mocha --compilers js:babel-register"
+    "test": "mocha --compilers js:babel-register",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mathphreak/csgo-demo-info.git"
+    "url": "https://github.com/mathphreak/csgo-demo-info.git"
   },
   "keywords": [
     "csgo",
@@ -38,8 +40,14 @@
     "babel-register": "6.3.13",
     "chai": "3.4.1",
     "chai-as-promised": "5.1.0",
+    "commitizen": "2.4.6",
+    "cz-conventional-changelog": "1.1.5",
     "mocha": "2.3.4",
+    "semantic-release": "^4.3.5",
     "standard": "5.4.1"
+  },
+  "czConfig": {
+    "path": "node_modules/cz-conventional-changelog"
   },
   "standard": {
     "ignore": [
