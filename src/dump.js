@@ -1,8 +1,10 @@
+import DemoFile from './demofile'
+
 class DemoFileDump {
   constructor (options) {
     this.options = options
     this.frameNumber = 0
-    this.demofile = {}
+    this.demofile = new DemoFile()
     this.gameEventList = {}
   }
   Open (filename) {
@@ -11,7 +13,7 @@ class DemoFileDump {
         console.err('Error opening file', filename, 'due to error', err)
       })
   }
-  DoDump () {
+  DoDump (filename) {
     let demofinished = false
     while (!demofinished) {
       var {cmd, tick, playerSlot} = this.demofile.ReadCmdHeader()
