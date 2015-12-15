@@ -1,5 +1,4 @@
 /* global describe, it */
-
 import {expect} from 'chai'
 import demoInfo from './index'
 

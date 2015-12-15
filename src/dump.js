@@ -19,16 +19,16 @@ class DemoFileDump {
     }
   }
   HandleDemoPacket () {
-    // TODO
+    throw new Error('NYI')
   }
   DumpDemoPacket (buf) {
-    // TODO
+    throw new Error('NYI')
   }
   DumpUserMessage (buf) {
-    // TODO
+    throw new Error('NYI')
   }
   MsgPrintf (msg, size, fmt) {
-    // TODO
+    throw new Error('NYI')
   }
 }
 
