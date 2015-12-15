@@ -46,8 +46,10 @@
     "semantic-release": "^4.3.5",
     "standard": "5.4.1"
   },
-  "czConfig": {
-    "path": "node_modules/cz-conventional-changelog"
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
   },
   "standard": {
     "ignore": [
