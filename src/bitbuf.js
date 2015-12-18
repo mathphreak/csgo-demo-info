@@ -6,6 +6,42 @@ const bitbuf = {
   kMaxVarint32Bytes: 5
 }
 
+const s_nMaskTable = [
+  0,
+  (1 << 1) - 1,
+  (1 << 2) - 1,
+  (1 << 3) - 1,
+  (1 << 4) - 1,
+  (1 << 5) - 1,
+  (1 << 6) - 1,
+  (1 << 7) - 1,
+  (1 << 8) - 1,
+  (1 << 9) - 1,
+  (1 << 10) - 1,
+  (1 << 11) - 1,
+  (1 << 12) - 1,
+  (1 << 13) - 1,
+  (1 << 14) - 1,
+  (1 << 15) - 1,
+  (1 << 16) - 1,
+  (1 << 17) - 1,
+  (1 << 18) - 1,
+  (1 << 19) - 1,
+  (1 << 20) - 1,
+  (1 << 21) - 1,
+  (1 << 22) - 1,
+  (1 << 23) - 1,
+  (1 << 24) - 1,
+  (1 << 25) - 1,
+  (1 << 26) - 1,
+  (1 << 27) - 1,
+  (1 << 28) - 1,
+  (1 << 29) - 1,
+  (1 << 30) - 1,
+  0x7fffffff,
+  0xffffffff
+]
+
 class CBitRead {
   constructor (buf) {
     this.m_bOverflow = false
@@ -77,8 +113,8 @@ class CBitRead {
     } else {
       var nAdjPosition = nPosition - (nHead << 3)
       if (nAdjPosition !== 0 || nHead !== 0) {
-        throw new Error('Ugly WTF reached')
-        // this.m_pDataIn = reinterpret_cast< uint32 const * > (reinterpret_cast< unsigned char const * >(this.m_pData) + ((nAdjPosition / 32) << 2) + nHead)
+        // TODO figure out if this works at all
+        this.m_dataIn = this.m_data.slice(((nAdjPosition / 32) << 2) + nHead)
       } else {
         this.m_dataIn = this.m_data.slice(0)
       }
@@ -136,10 +172,14 @@ class CBitRead {
       this.m_dataIn = this.m_dataIn.slice(1)
     }
   }
+  FetchNext () {
+    this.m_nBitsAvail = 32
+    this.GrabNextDWord(false)
+  }
 
   ReadUBitLong (numbits) {
     if (this.m_nBitsAvail >= numbits) {
-      let nRet = this.m_nInBufWord & this.s_nMaskTable[ numbits ] // unsigned int
+      let nRet = this.m_nInBufWord & s_nMaskTable[ numbits ] // unsigned int
       this.m_nBitsAvail -= numbits
       if (this.m_nBitsAvail) {
         this.m_nInBufWord >>= numbits
@@ -155,11 +195,34 @@ class CBitRead {
       if (this.m_bOverflow) {
         return 0
       }
-      nRet |= ((this.m_nInBufWord & this.s_nMaskTable[ numbits ]) << this.m_nBitsAvail)
+      nRet |= ((this.m_nInBufWord & s_nMaskTable[ numbits ]) << this.m_nBitsAvail)
       this.m_nBitsAvail = 32 - numbits
       this.m_nInBufWord >>= numbits
       return nRet
     }
+  }
+
+  ReadBytes (nBytes) {
+    return this.ReadBits(nBytes << 3)
+  }
+
+  ReadBits (nBits) {
+    var pOut = new Buffer(1 + (nBits / 8)) // unsigned char*
+    var nBitsLeft = nBits
+    var idx = 0
+
+    // read remaining bytes
+    while (nBitsLeft >= 8) {
+      pOut[idx++] = this.ReadUBitLong(8)
+      nBitsLeft -= 8
+    }
+
+    // read remaining bits
+    if (nBitsLeft) {
+      pOut[idx++] = this.ReadUBitLong(nBitsLeft)// *pOut = ReadUBitLong(nBitsLeft)
+    }
+
+    return pOut
   }
 
   ReadVarInt32 () {
@@ -177,6 +240,11 @@ class CBitRead {
     } while (b & 0x80 !== 0)
 
     return result
+  }
+
+  // Originality FTW
+  FakeMemcpySlice (start, length) {
+    return this.m_data.slice(start, start + length)
   }
 }
 

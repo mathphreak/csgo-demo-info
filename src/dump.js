@@ -1,7 +1,8 @@
 import DemoFile from './demofile'
 import {CBitRead} from './bitbuf'
+import {CSVCMsg_SendTable} from './messages'
 
-// const NET_MAX_PAYLOAD = 262144 - 4
+const NET_MAX_PAYLOAD = 262144 - 4
 
 var globalOptions
 
@@ -9,8 +10,36 @@ var s_DataTables
 var s_ServerClasses
 var s_nServerClassBits
 
-function ReadFromBuffer () {
-  throw new Error('ReadFromBuffer NYI')
+function ReadFromBuffer (buffer) {
+  var size = buffer.ReadVarInt32()
+  var pBuffer // output buffer
+  if (size < 0 || size > NET_MAX_PAYLOAD) {
+    return false
+  }
+
+  // Check its valid
+  if (size > buffer.GetNumBytesLeft()) {
+    return false
+  }
+
+  // If the read buffer is byte aligned, we can parse right out of it
+  // but can we really?
+  /*
+  if ((buffer.GetNumBitsRead() % 8) === 0) {
+    pBuffer = buffer.FakeMemcpySlice(buffer.GetNumBytesRead(), size)
+    // memcpy(pBuffer, buffer.GetBasePointer() + buffer.GetNumBytesRead(), size)
+    buffer.SeekRelative(size * 8)
+    return true
+  }
+  */
+
+  // otherwise we have to ReadBytes() it out
+  pBuffer = buffer.ReadBytes(size)
+  if (pBuffer.length === 0) {
+    return false
+  }
+
+  return true
 }
 
 function RecvTable_ReadInfos () {
@@ -22,7 +51,7 @@ function FlattenDataTable () {
 }
 
 function ParseDataTable (buf) {
-  var msg // CSVCMsg_SendTable
+  var msg
   while (1) {
     buf.ReadVarInt32()
 
@@ -32,7 +61,7 @@ function ParseDataTable (buf) {
       console.error('ParseDataTable: ReadFromBuffer failed.\n')
       return false
     }
-    msg.ParseFromArray(pBuffer)
+    msg = CSVCMsg_SendTable.decode(pBuffer)
 
     if (msg.is_end()) {
       break
@@ -53,20 +82,18 @@ function ParseDataTable (buf) {
       return false
     }
 
-    /*
     var nChars // int
-    buf.ReadString(entry.strName, sizeof(entry.strName), false, nChars)
-    buf.ReadString(entry.strDTName, sizeof(entry.strDTName), false, nChars)
+    buf.ReadString(entry.strName, false, nChars)
+    buf.ReadString(entry.strDTName, false, nChars)
 
     // find the data table by name
     entry.nDataTable = -1
     for (let j = 0; j < s_DataTables.size(); j++) { // unsigned int
-      if (strcmp(entry.strDTName, s_DataTables[ j ].net_table_name().c_str()) === 0) {
+      if (entry.strDTName === s_DataTables[ j ].net_table_name().c_str()) {
         entry.nDataTable = j
         break
       }
     }
-    */
 
     if (globalOptions.dumpDataTables) {
       console.log('class:%d:%s:%s(%d)\n', entry.nClassID, entry.strName, entry.strDTName, entry.nDataTable)
@@ -143,7 +170,6 @@ class DemoFileDump {
           break
       }
       console.log(cmd, tick, playerSlot)
-      demofinished = true
     }
   }
   HandleDemoPacket () {
